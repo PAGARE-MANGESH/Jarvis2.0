@@ -13,6 +13,7 @@ function App() {
   const [isListening, setIsListening] = useState(false);
 
   useEffect(() => {
+
     if (!('webkitSpeechRecognition' in window) || !('speechSynthesis' in window)) {
 
       alert('Your browser does not support speech recognition or synthesis. Please use Chrome.');
