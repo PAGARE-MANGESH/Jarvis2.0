@@ -20,6 +20,7 @@ function App() {
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
             setTranscript(event.results[i][0].transcript);
+
             speak(event.results[i][0].transcript); // Speak back the recognized speech
           } else {
             interimTranscript += event.results[i][0].transcript;
@@ -50,22 +51,46 @@ function App() {
   };
 
   const speak = (text) => {
+
     const utterance = new SpeechSynthesisUtterance(text);
+
     synthesis.current.speak(utterance);
 
     // Check if the spoken text contains the command
+
+
+
     if (text.toLowerCase().includes('open google')) {
 
       window.open('https://www.google.com', '_blank');
 
+      synthesis.current.speak('opening google');
+
+
     } else if (text.toLowerCase().includes('open youtube')) {
+
       window.open('https://youtube.com/', '_blank');
+
     } else if (text.toLowerCase().includes('what is') || text.toLowerCase().includes('who is') || text.toLowerCase().includes('when') || text.toLowerCase().includes('where is')) {
+
       window.open(`https://www.google.com/search?q=${text}`, '_blank');
-    } else {
+
+    } else if (text.toLowerCase().includes('clear all')) {
+
+      document.getElementById('cammand').replaceChild = ''
+
+    }
+    else if (text.toLowerCase().includes('Stop now')) {
+
+    }
+    else {
+
       console.log('Nothing')
+
     }
   };
+
+
 
 
   return (
@@ -82,7 +107,7 @@ function App() {
           <div className="black_overlay"></div>
         </div>
         <div className="ui-text" id='UsersCommand'>
-          {transcript}
+          <i id='cammand'> {transcript} </i>
           <div className="ui-dot ml-3"></div>
           <div className="ui-dot"></div>
           <div className="ui-dot"></div>
