@@ -1,10 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
+import CameraCapture from './assets/Cammands/Capture';
 
 function App() {
   const [transcript, setTranscript] = useState('');
   const recognition = useRef(null);
   const synthesis = useRef(null);
   const [isListening, setIsListening] = useState(false);
+
+
+
+  // web cam  
+
+  const [imageSrc, setImageSrc] = useState(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const videoRef = useRef();
+  const canvasRef = useRef();
+
+
 
   useEffect(() => {
     if (!('webkitSpeechRecognition' in window) || !('speechSynthesis' in window)) {
@@ -37,37 +49,54 @@ function App() {
       };
       synthesis.current = window.speechSynthesis;
     }
+
+
+    // finding  location code   
+
+
+
+
   }, []);
 
 
   const startRecognition = () => {
     recognition.current.start();
     setIsListening(true);
+    document.getElementById('cammand')
+    synthesis.current.speak(new SpeechSynthesisUtterance("Initializing Jarvis2.0"));
+
   };
 
   const stopRecognition = () => {
     recognition.current.stop();
     setIsListening(false);
+    document.getElementById('cammand').innerHTML = ''
+    synthesis.current.speak(new SpeechSynthesisUtterance("Now I'm Stoping "));
+
   };
+
 
   const speak = (text) => {
 
     const utterance = new SpeechSynthesisUtterance(text);
-
     synthesis.current.speak(utterance);
 
-    // Check if the spoken text contains the command
+    // for  web camera  
 
 
+    if (text.toLowerCase().includes('cartoon')) {
 
-    if (text.toLowerCase().includes('open google')) {
+      synthesis.current.speak(utterance);
 
-      window.open('https://www.google.com', '_blank');
+    } else if (text.toLowerCase().includes('open google')) {
 
-      synthesis.current.speak('opening google');
+      synthesis.current.speak(new SpeechSynthesisUtterance("Opening Google boss"));
 
+      window.open('https://google.com/', '_blank');
 
     } else if (text.toLowerCase().includes('open youtube')) {
+
+      synthesis.current.speak(new SpeechSynthesisUtterance("Opening YouTube boss"));
 
       window.open('https://youtube.com/', '_blank');
 
@@ -75,20 +104,40 @@ function App() {
 
       window.open(`https://www.google.com/search?q=${text}`, '_blank');
 
+      synthesis.current.speak(new SpeechSynthesisUtterance("I Found Something Here"));
+
     } else if (text.toLowerCase().includes('clear all')) {
 
-      document.getElementById('cammand').replaceChild = ''
+      document.getElementById('cammand').replaceChild = '';
 
-    }
-    else if (text.toLowerCase().includes('Stop now')) {
+    } else if (text.toLowerCase().includes('stop now')) {
+
+      console.log('object');
+
+    } else if (text.toLowerCase().includes('tell me today\'s date')) {
+
+      const today = new Date();
+
+      // Extract components of the date
+      const year = today.getFullYear();
+      const month = (today.getMonth() + 1).toString().padStart(2, '0');
+      const day = today.getDate().toString().padStart(2, '0');
+
+      // Format the date
+      const formattedDate = `${year}-${month}-${day}`;
+
+      // Respond with today's date
+
+      console.log(formattedDate);
+      synthesis.current.speak(new SpeechSynthesisUtterance(`${formattedDate}`));
+
 
     }
     else {
+      console.error('hello');
+    }
 
-      console.log('Nothing')
-
-
-
+  }
 
 
   return (
@@ -122,9 +171,15 @@ function App() {
         ) : (
           <button className="bg-sky-400 hover:bg-sky-700 p-3 rounded-xl" onClick={startRecognition}>Start Recognition</button>
         )}
+
+
+        <br />
+
       </center>
+
     </div>
   );
+
 }
 
 export default App;
