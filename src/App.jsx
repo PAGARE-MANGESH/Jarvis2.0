@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
-import CameraCapture from './assets/Cammands/Capture';
+import axios from 'axios';
+
+
+
 
 function App() {
+
   const [transcript, setTranscript] = useState('');
   const recognition = useRef(null);
   const synthesis = useRef(null);
   const [isListening, setIsListening] = useState(false);
+  const [weatherData, setWeatherData] = useState(null);
 
 
 
   // web cam  
-
-  const [imageSrc, setImageSrc] = useState(null);
-  const [cameraOpen, setCameraOpen] = useState(false);
-  const videoRef = useRef();
-  const canvasRef = useRef();
 
 
 
@@ -53,9 +53,6 @@ function App() {
 
     // finding  location code   
 
-
-
-
   }, []);
 
 
@@ -66,6 +63,7 @@ function App() {
     synthesis.current.speak(new SpeechSynthesisUtterance("Initializing Jarvis2.0"));
 
   };
+
 
   const stopRecognition = () => {
     recognition.current.stop();
@@ -79,14 +77,31 @@ function App() {
   const speak = (text) => {
 
     const utterance = new SpeechSynthesisUtterance(text);
+
     synthesis.current.speak(utterance);
 
     // for  web camera  
 
 
-    if (text.toLowerCase().includes('cartoon')) {
+    if (text.toLowerCase().includes('hi')) {
 
-      synthesis.current.speak(utterance);
+      // synthesis.current.speak(utterance);
+
+      let currentDate = new Date();
+
+      let currentHour = currentDate.getHours();
+
+      if (currentHour >= 6 && currentHour < 12) {
+        synthesis.current.speak(new SpeechSynthesisUtterance(`Good morning boss. It's ${currentHour} AM.`));
+      } else if (currentHour >= 12 && currentHour < 18) {
+        synthesis.current.speak(new SpeechSynthesisUtterance(`Good afternoon, boss. It's ${currentHour} PM.`));
+      } else if (currentHour >= 18 && currentHour < 20) {
+        synthesis.current.speak(new SpeechSynthesisUtterance(`Good evening, boss. It's ${currentHour} PM.`));
+      } else if (currentHour >= 20 || currentHour < 6) {
+        synthesis.current.speak(new SpeechSynthesisUtterance(`Good night, boss. It's ${currentHour} PM.`));
+      }
+
+      // synthesis.current.speak(new SpeechSynthesisUtterance("hii boss How are you"));
 
     } else if (text.toLowerCase().includes('open google')) {
 
@@ -100,6 +115,14 @@ function App() {
 
       window.open('https://youtube.com/', '_blank');
 
+    } else if (text.toLowerCase().includes('play')) {
+
+      synthesis.current.speak(new SpeechSynthesisUtterance("Opening YouTube boss"));
+
+      window.open(`https://www.youtube.com/results?search_query=${text}`, '_blank');
+
+      synthesis.current.speak(new SpeechSynthesisUtterance(`here are list of ${text}`));
+
     } else if (text.toLowerCase().includes('what is') || text.toLowerCase().includes('who is') || text.toLowerCase().includes('when') || text.toLowerCase().includes('where is')) {
 
       window.open(`https://www.google.com/search?q=${text}`, '_blank');
@@ -110,29 +133,70 @@ function App() {
 
       document.getElementById('cammand').replaceChild = '';
 
-    } else if (text.toLowerCase().includes('stop now')) {
+    } else if (text.toLowerCase().includes('open calculator')) {
 
-      console.log('object');
+      window.open('calculator.exe', '_blank');
 
-    } else if (text.toLowerCase().includes('tell me today\'s date')) {
+    } else if (text.toLowerCase().includes('tell me date')) {
 
-      const today = new Date();
+      let currentDate = new Date();
+
+      let formattedDate = currentDate.toDateString();
+
+      let dateTimeString = "Today's date is " + formattedDate
+
+
+      synthesis.current.speak(new SpeechSynthesisUtterance(`${dateTimeString}`));
+
+    } else if (text.toLowerCase().includes('tell me time')) {
+
+      let currentDate = new Date();
 
       // Extract components of the date
-      const year = today.getFullYear();
-      const month = (today.getMonth() + 1).toString().padStart(2, '0');
-      const day = today.getDate().toString().padStart(2, '0');
+
+      // let formattedDate = currentDate.toDateString();  // E.g., "Fri Mar 19 2024"
+
+      let formattedTime = currentDate.toLocaleTimeString();  // E.g., "10:30:15 AM"
+      console.log(typeof formattedTime)
 
       // Format the date
-      const formattedDate = `${year}-${month}-${day}`;
+
+      // let dateTimeString = " Today's date is " + formattedDate + " and the current time is " + formattedTime;
 
       // Respond with today's date
 
-      console.log(formattedDate);
-      synthesis.current.speak(new SpeechSynthesisUtterance(`${formattedDate}`));
+      // console.log(dateTimeString);
+      // console.log('object')
 
+      synthesis.current.speak(new SpeechSynthesisUtterance(`current time is ${formattedTime}`));
+
+    } else if (text.toLowerCase().includes("pune weather")) {
+      axios
+        .get(
+          `https://api.openweathermap.org/data/2.5/weather?q=Pune&appid=91d6e3f2c94214748f7848663adf99bf
+          &units=metric`
+        )
+        .then((response) => {
+          console.log('Weather API Response:', response.data);
+          // Extract relevant data and set state
+        })
+        .catch((error) => {
+          if (error.response) {
+            // The request was made and the server responded with a status code that falls out of the range of 2xx
+            console.error('Error response from server:', error.response.data);
+            console.error('Status code:', error.response.status);
+          } else if (error.request) {
+            // The request was made but no response was received
+            console.error('No response received:', error.request);
+          } else {
+            // Something happened in setting up the request that triggered an error
+            console.error('Error setting up request:', error.message);
+          }
+        });
 
     }
+    // };
+
     else {
       console.error('hello');
     }
@@ -174,11 +238,11 @@ function App() {
 
 
         <br />
-
       </center>
 
     </div>
   );
+
 
 }
 
